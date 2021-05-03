@@ -1,8 +1,9 @@
-const Transaction=require('../models/Transactions')
+const Transaction=require('../models/TransactionsModel')
 
 const getTransactions=async(req,res,next)=>{
     try{
-        const transactions=await Transaction.find()
+        const user=req.user._id
+        const transactions=await Transaction.find({user})
 
         res.status(200).json({
             success:true,
@@ -21,7 +22,8 @@ const getTransactions=async(req,res,next)=>{
 const addTransactions=async(req,res,next)=>{
     try{
         const {text,amount} = req.body
-        const transaction=await Transaction.create(req.body)
+        const user=req.user._id
+        const transaction=await Transaction.create({text,amount,user})
 
         return res.status(201).json({
             success:true,
@@ -30,6 +32,7 @@ const addTransactions=async(req,res,next)=>{
 
     }catch(e){
         if(e.name==='ValidationError'){
+            console.log(e)
             const messages=Object.values(e.errors).map(val=>val.message)
             res.status(400).json({
                 success:false,
@@ -48,14 +51,15 @@ const addTransactions=async(req,res,next)=>{
 
 const deleteTransactions=async(req,res,next)=>{
     try{
-        const transaction=await Transaction.findById(req.params.id)
+        const user=req.user._id
+        const transaction=await Transaction.find({user,_id:req.params.id})
         if(!transaction){
             return res.status(404).json({
                 success:false,
                 error:'No transaction found'
             })
         }
-        await transaction.remove()
+        await Transaction.findByIdAndDelete(req.params.id)
         res.status(200).json({
             success:true,
             data:transaction

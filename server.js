@@ -19,7 +19,9 @@ if(process.env.NODE_ENV==='development'){
     app.use(morgan('dev'))
 }
 
-const transactionRouter=require('./src/routes/transactions')
-app.use(transactionRouter)
+const transactionRoutes=require('./src/routes/transactionRoutes')
+const userRoutes=require('./src/routes/userRoutes')
+app.use('/api/users',userRoutes)
+app.use('/api/transactions',transactionRoutes)
 
 app.listen(PORT,()=>{console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold)})
